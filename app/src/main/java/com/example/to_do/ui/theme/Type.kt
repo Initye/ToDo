@@ -36,5 +36,10 @@ val Typography = Typography(
         fontFamily = Adlam,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = Adlam,
+        fontWeight = FontWeight.Bold,
+        fontSize = 80.sp
     )
 )

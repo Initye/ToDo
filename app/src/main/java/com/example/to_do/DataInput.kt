@@ -24,35 +24,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.intellij.lang.annotations.JdkConstants
 
 @Composable
 fun addElement() {
     var text by remember { mutableStateOf("") }
     Row {
-        inputField(text = text, onTextChange = { text = it })
         addButton(onClick = { text = "" }) // Example: Resets input field on click
     }
 }
-
-
-@Composable
-fun inputField(modifier: Modifier = Modifier, text: String, onTextChange: (String) -> Unit) {
-    TextField(
-        modifier = modifier
-            .height(48.dp) // Smaller height for a cleaner look
-            .padding(horizontal = 12.dp),
-        value = text,
-        onValueChange = onTextChange,
-        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 15.sp),
-        singleLine = true,
-    )
-}
-
 
 @Composable
 fun addButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
