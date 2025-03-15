@@ -1,52 +1,37 @@
 package com.example.to_do
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-private const val TODO_PREFS = "user_preferences"
+private const val todo_prefs = "user_preferences"
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = TODO_PREFS)
+private val Context.dataStore by preferencesDataStore(name = todo_prefs)
 
-enum class SortOrder { NONE, BY_DATE, BY_NAME }
-
-data class UserPreferences(
-    val showCompleted: Boolean,
-    val sortOrder: SortOrder
-)
-
-class DataStoreManager(private val context: Context) {
-
-    private object PreferencesKeys {
-        val SORT_ORDER = stringPreferencesKey("sort_order")
-        val SHOW_COMPLETED = booleanPreferencesKey("show_completed")
+class DataStore(private val context: Context) {
+    companion object {
+        private val TODO_LIST_KEY = stringSetPreferencesKey("todo_list")
+        private val TODO_STATUS_KEY = stringPreferencesKey("todo_status")
     }
 
-    val userPreferencesFlow: Flow<UserPreferences> = context.dataStore.data.map { preferences ->
-        val sortOrder = SortOrder.valueOf(preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name)
-        val showCompleted = preferences[PreferencesKeys.SHOW_COMPLETED] ?: false
-        UserPreferences(showCompleted, sortOrder)
+    val todoList: Flow<List<Pair<String, Boolean>>> = context.dataStore.data.map { preferences ->
+        val savedItems = preferences[TODO_LIST_KEY] ?: emptySet()
+        val statusMap = preferences[TODO_STATUS_KEY]?.split(",")?.associate {
+            val parts = it.split(":")
+            parts[0] to (parts[1].toBoolean())
+        } ?: emptyMap()
+        savedItems.map { task -> task to (statusMap[task] ?: false) }
     }
 
-    suspend fun updateSortOrder(sortOrder: SortOrder) {
+    suspend fun saveToDoList(items: List<Pair<String, Boolean>>) {
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SORT_ORDER] = sortOrder.name
+            preferences[TODO_LIST_KEY] = items.map { it.first }.toSet()
+            preferences[TODO_STATUS_KEY] = items.joinToString(",") { "${it.first}:${it.second}" }
         }
-    }
-
-    suspend fun updateShowCompleted(showCompleted: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SHOW_COMPLETED] = showCompleted
-        }
-    }
-
-    fun fetchInitialPreferences(): UserPreferences = runBlocking {
-        val preferences = context.dataStore.data.first()
-        val sortOrder = SortOrder.valueOf(preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name)
-        val showCompleted = preferences[PreferencesKeys.SHOW_COMPLETED] ?: false
-        UserPreferences(showCompleted, sortOrder)
     }
 }

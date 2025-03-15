@@ -27,8 +27,7 @@ import androidx.compose.ui.graphics.Color
 
 
 @Composable
-fun ListElement(modifier: Modifier = Modifier, text: String) {
-    var doneIndicator by remember { mutableStateOf<Boolean>(false) }
+fun ListElement(modifier: Modifier = Modifier, text: String, onCheckedChange: (Boolean) -> Unit, isChecked: Boolean) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -51,11 +50,11 @@ fun ListElement(modifier: Modifier = Modifier, text: String) {
                 painter = painterResource(
                     id = R.drawable.checkbox_unchecked
                 ),
-                contentDescription = if (doneIndicator) "Checked" else "Unchecked",
-                tint = if(doneIndicator) Color.Green else Color.Gray,
+                contentDescription = if (isChecked) "Checked" else "Unchecked",
+                tint = if(isChecked) Color.Green else Color.Gray,
                 modifier = modifier
                     .size(35.dp)
-                    .clickable { doneIndicator = !doneIndicator }
+                    .clickable { onCheckedChange(!isChecked) }
                     .padding(end = 12.dp)
             )
 
@@ -68,6 +67,6 @@ fun ListElement(modifier: Modifier = Modifier, text: String) {
 @Composable
 fun ElementPreview() {
     ToDoTheme {
-        ListElement(text = "Test message!214$55.,/['")
+        ListElement(text = "Test message!214$55.,/['", isChecked = false, onCheckedChange = {})
     }
 }

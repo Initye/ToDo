@@ -24,10 +24,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,13 +37,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.datastore.dataStore
 import com.example.to_do.ui.theme.Adlam
 import com.example.to_do.ui.theme.ToDoTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private lateinit var dataStore: DataStore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        dataStore = DataStore(this)
         setContent {
             ToDoTheme {
                 Surface (
@@ -51,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
 
                 ) {
-                    ToDoApp()
+                    ToDoApp(dataStore = dataStore)
                 }
             }
         }
@@ -60,9 +68,17 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun ToDoApp(modifier: Modifier = Modifier) {
-    val items = remember { mutableStateListOf<String>() }
+fun ToDoApp(modifier: Modifier = Modifier, dataStore: DataStore) {
+    val items = remember { mutableStateListOf<Pair<String, Boolean>>() }
     var showDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        dataStore.todoList.collect { savedItems ->
+            items.clear()
+            items.addAll(savedItems)
+        }
+    }
 
     Box { //Box for free positioning
         Column {
@@ -75,9 +91,20 @@ fun ToDoApp(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineLarge,
             )
             LazyColumn {
-                items(items) { itemText ->
+                items(items) { (text, isDone) ->
                     ListElement(
-                        text = itemText
+                        text = text,
+                        isChecked = isDone,
+                        onCheckedChange = { newCheckedState ->
+                            val updatedItems = items.map {
+                                if (it.first == text) it.first to newCheckedState else it
+                            }
+                            items.clear()
+                            items.addAll(updatedItems)
+                            coroutineScope.launch {
+                                dataStore.saveToDoList(updatedItems)
+                            }
+                        }
                     )
                 }
             }
@@ -93,12 +120,16 @@ fun ToDoApp(modifier: Modifier = Modifier) {
             })
     }
 
-    if(showDialog) {
+    if (showDialog) {
         AddToDoDialog(
             onDismiss = { showDialog = false },
             onAdd = { newItem ->
-                items.add(newItem)
-            showDialog = false }
+                items.add(newItem to false)
+                coroutineScope.launch {
+                    dataStore.saveToDoList(items)
+                }
+                showDialog = false
+            }
         )
     }
 }
@@ -137,6 +168,8 @@ fun AddToDoDialog(modifier: Modifier = Modifier, onDismiss: () -> Unit, onAdd: (
 @Composable
 fun GreetingPreview() {
     ToDoTheme {
-        ToDoApp()
+        ToDoApp(
+            dataStore = TODO()
+        )
     }
 }
