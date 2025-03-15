@@ -9,9 +9,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private const val todo_prefs = "user_preferences"
 
-private val Context.dataStore by preferencesDataStore(name = todo_prefs)
+val Context.dataStore by preferencesDataStore(name = "todo_prefs")
 
 class DataStore(private val context: Context) {
     companion object {
@@ -30,8 +29,14 @@ class DataStore(private val context: Context) {
 
     suspend fun saveToDoList(items: List<Pair<String, Boolean>>) {
         context.dataStore.edit { preferences ->
-            preferences[TODO_LIST_KEY] = items.map { it.first }.toSet()
-            preferences[TODO_STATUS_KEY] = items.joinToString(",") { "${it.first}:${it.second}" }
+            if (items.isEmpty()) {
+                preferences.remove(TODO_LIST_KEY)
+                preferences.remove(TODO_STATUS_KEY)
+            } else {
+                preferences[TODO_LIST_KEY] = items.map { it.first }.toSet()
+                preferences[TODO_STATUS_KEY] =
+                    items.joinToString(",") { "${it.first}:${it.second}" }
+            }
         }
     }
 }

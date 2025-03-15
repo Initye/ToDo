@@ -1,6 +1,8 @@
 package com.example.to_do
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,13 +28,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ListElement(modifier: Modifier = Modifier, text: String, onCheckedChange: (Boolean) -> Unit, isChecked: Boolean) {
+fun ListElement(modifier: Modifier = Modifier, text: String, onCheckedChange: (Boolean) -> Unit, isChecked: Boolean, onLongPress: () -> Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(46.dp)
             .padding(bottom = 5.dp)
+            .combinedClickable(
+                onClick = { onCheckedChange(!isChecked) },
+                onLongClick = { onLongPress() }
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -67,6 +74,6 @@ fun ListElement(modifier: Modifier = Modifier, text: String, onCheckedChange: (B
 @Composable
 fun ElementPreview() {
     ToDoTheme {
-        ListElement(text = "Test message!214$55.,/['", isChecked = false, onCheckedChange = {})
+        ListElement(text = "Test message!214$55.,/['", isChecked = false, onCheckedChange = {}, onLongPress = {})
     }
 }

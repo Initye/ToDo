@@ -72,6 +72,8 @@ fun ToDoApp(modifier: Modifier = Modifier, dataStore: DataStore) {
     val items = remember { mutableStateListOf<Pair<String, Boolean>>() }
     var showDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    var selectedItem by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         dataStore.todoList.collect { savedItems ->
@@ -90,26 +92,43 @@ fun ToDoApp(modifier: Modifier = Modifier, dataStore: DataStore) {
                 fontFamily = Adlam,
                 style = MaterialTheme.typography.headlineLarge,
             )
+
             LazyColumn {
-                items(items) { (text, isDone) ->
-                    ListElement(
-                        text = text,
-                        isChecked = isDone,
-                        onCheckedChange = { newCheckedState ->
-                            val updatedItems = items.map {
-                                if (it.first == text) it.first to newCheckedState else it
+                if (items.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No tasks available.",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    items(items) { (text, isDone) ->
+                        ListElement(
+                            text = text,
+                            isChecked = isDone,
+                            onCheckedChange = { newCheckedState ->
+                                val updatedItems = items.map {
+                                    if (it.first == text) it.first to newCheckedState else it
+                                }
+                                items.clear()
+                                items.addAll(updatedItems)
+                                coroutineScope.launch {
+                                    dataStore.saveToDoList(updatedItems)
+                                }
+                            },
+                            onLongPress = {
+                                selectedItem = text to isDone
+                                showDeleteDialog = true
                             }
-                            items.clear()
-                            items.addAll(updatedItems)
-                            coroutineScope.launch {
-                                dataStore.saveToDoList(updatedItems)
-                            }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
-        addButton(
+            addButton(
             modifier = modifier
                 .size(48.dp)
                 .padding(start = 8.dp)
@@ -129,6 +148,36 @@ fun ToDoApp(modifier: Modifier = Modifier, dataStore: DataStore) {
                     dataStore.saveToDoList(items)
                 }
                 showDialog = false
+            }
+        )
+    }
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Task") },
+            text = { Text("Are you sure you want to delete '${selectedItem?.first ?: "this item"}'?") },
+            confirmButton = {
+                Button(onClick = {
+                    selectedItem?.let { item ->
+                        val updatedList = items.toList().toMutableList().apply { remove(item) }
+                        items.clear()
+                        items.addAll(updatedList)
+
+                        coroutineScope.launch {
+                            dataStore.saveToDoList(updatedList)
+                        }
+
+                        selectedItem = null
+                    }
+                    showDeleteDialog = false
+                }) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
             }
         )
     }
