@@ -1,6 +1,6 @@
 # ***To-Do App***
 
-- A simple To-Do application for Android where you can add and delete tasks easily.
+A simple To-Do application for Android where you can add and delete tasks easily.
 
 ## **Features**
 
