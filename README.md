@@ -5,7 +5,7 @@
 ## **Features**
 
 - Add new tasks to the list
-
+  
 - Delete tasks from the list
 
 ## **Installation**
@@ -28,7 +28,7 @@ Clone the repository:
 
 ## **Contributing**
 
-- Feel free to fork the repository and submit pull requests for improvements.
+Feel free to fork the repository and submit pull requests for improvements.
 
 ## **License**
 
