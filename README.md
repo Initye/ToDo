@@ -24,7 +24,7 @@ Clone the repository:
 
 - Use the input field to add tasks
 
-- Remove tasks by clicking the delete button
+- Remove tasks by holding specific task and clicking delete
 
 ## **Contributing**
 
