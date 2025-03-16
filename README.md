@@ -35,7 +35,6 @@ Feel free to fork the repository and submit pull requests for improvements.
 This project is licensed under the MIT License.
 
 ![1](https://github.com/user-attachments/assets/1cfef3e1-250e-45e1-941e-c681349d3d84)
-![2](https://github.com/user-attachments/assets/c0a4a7f3-46bf-4108-9bfd-6d41637041a4)
 ![3](https://github.com/user-attachments/assets/75163b2a-34e1-432a-8dd1-bb7b3f46d09b)
 
 
