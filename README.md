@@ -2,13 +2,13 @@
 
 - A simple To-Do application for Android where you can add and delete tasks easily.
 
-**Features**
+## **Features**
 
 - Add new tasks to the list
 
 - Delete tasks from the list
 
-**Installation**
+## **Installation**
 
 Clone the repository:
 
@@ -18,7 +18,7 @@ Clone the repository:
 
 - Navigate to the cloned repository and open it
 
-**Usage**
+## **Usage**
 
 - Build and run the app on an emulator or a physical device
 
@@ -26,10 +26,10 @@ Clone the repository:
 
 - Remove tasks by clicking the delete button
 
-**Contributing**
+## **Contributing**
 
 - Feel free to fork the repository and submit pull requests for improvements.
 
-**License**
+## **License**
 
 This project is licensed under the MIT License.
