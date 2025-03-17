@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.datastore.dataStore
 import com.example.to_do.ui.theme.Adlam
 import com.example.to_do.ui.theme.ToDoTheme
@@ -97,7 +98,8 @@ fun ToDoApp(modifier: Modifier = Modifier, dataStore: DataStore) {
                 if (items.isEmpty()) {
                     item {
                         Text(
-                            text = "No tasks available.",
+                            text = "No tasks available",
+                            fontSize = 15.sp,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
